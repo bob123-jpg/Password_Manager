@@ -127,7 +127,7 @@ class GetUsernameInput:
         # Create a file for storing user data if file doesn't exist
         if not path.exists('User_Data.txt'):
             with open('User_Data.txt', 'a') as file:
-                file.write('Username: ' + x)
+                file.write('Username: ' + x + '\n')
                 file.write('\n')
         # If file does exist, decrypt file, add to existing data, and rewrite file 
         else:
@@ -136,9 +136,9 @@ class GetUsernameInput:
 
             decrypt_data = use_key.decrypt(data)
             string_data = decrypt_data.decode()
-            
+
             with open('User_Data.txt', 'w') as file:
-                file.write(string_data + 'Username: ' + x + ' ')
+                file.write(string_data + 'Username: ' + x + '\n')
             
 # Save and manipulate password input
 # Sources:
@@ -152,8 +152,7 @@ class GetPasswordInput:
         # Write original, unencrypted password to file
         x = self.password.get()
         user_data = open('User_Data.txt', 'a')
-        user_data.write('Password: ' + x)
-        user_data.write('\n')
+        user_data.write('Password: ' + x + '\n')
         user_data.close()
 
 # Save and manipulate phone number input
@@ -168,8 +167,7 @@ class GetPhoneInput:
         # Write original, unencrypted phone number to file
         x = self.phone.get()
         user_data = open('User_Data.txt', 'a')
-        user_data.write('Phone: ' + x)
-        user_data.write('\n')
+        user_data.write('Phone: ' + x + '\n')
         user_data.close()
 
 # Save and manipulate email address input
@@ -184,8 +182,7 @@ class GetEmailInput:
         # Write original, unencrypted email address to file
         x = self.email.get()
         user_data = open('User_Data.txt', 'a')
-        user_data.write('Email: ' + x)
-        user_data.write('\n\n')
+        user_data.write('Email: ' + x + '\n')
         user_data.close()
         
 '''Class for a window opened by clicking New User button'''
@@ -392,26 +389,20 @@ class GUIReturningUserWindow:
         entered_username = self.read_username.get()
         entered_password = self.read_password.get()
 
+        # Open file to verify inputs
         with open('User_Data.txt', 'rb') as verify_input:
             read_data = verify_input.read()
-            
+
+            # Decrypt file data
             decrypt_data = use_key.decrypt(read_data)
+            string_data = decrypt_data.decode()
+
+            # Format decrypted data
+            format_data = [i.strip() for i in string_data.split('\n') if i.strip()]
+            final_data = '\n'.join(format_data)
             
-            if 'Username: ' + entered_username in str(decrypt_data) and 'Password: ' + entered_password in str(decrypt_data) \
-               and len(entered_username) != 0 and len(entered_password) != 0:
-                # Close frame for login page
-                self.frame['login_frame'].destroy()
-                # Switch to multi-authentication frame
-                self.dashboard_frame()
-            else:
-                # Display an error message if username or password invalid
-                messagebox.showerror(title = 'Error', message = 'Incorrect username or password. Please try again.')  
-        print(decrypt_data)
-    '''
-        # Verify username and password for logging in
-        with open('User_Data.txt', 'r') as verify_input:
-            read_data = verify_input.read()
-            if 'Username: ' + entered_username in read_data and entered_username + '\n' + 'Password: ' + entered_password in read_data \
+            # Verify inputs
+            if 'Username: ' + entered_username in final_data and entered_username + '\n' + 'Password: ' + entered_password in final_data \
                and len(entered_username) != 0 and len(entered_password) != 0:
                 # Close frame for login page
                 self.frame['login_frame'].destroy()
@@ -420,7 +411,9 @@ class GUIReturningUserWindow:
             else:
                 # Display an error message if username or password invalid
                 messagebox.showerror(title = 'Error', message = 'Incorrect username or password. Please try again.')
-        '''
+
+        print(final_data)
+
     # Frame to display a dashboard
     def dashboard_frame(self):
         dashboard_frame = Frame(self.window)
